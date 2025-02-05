@@ -1,10 +1,14 @@
+using Microsoft.AspNetCore.Routing.Constraints;
+using Microsoft.OpenApi.Models;
 using SupermarketCheckout;
 using SupermarketCheckout.Offers;
 using System.Text.Json.Serialization;
-using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.Routing.Constraints;
 
 var builder = WebApplication.CreateSlimBuilder(args);
+
+// Configure logging
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
 
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
@@ -36,6 +40,8 @@ app.UseSwaggerUI(c =>
     c.RoutePrefix = string.Empty; // Set Swagger UI at the app's root
 });
 
+var logger = app.Logger;
+
 var sampleStockKeepingUnits = new StockKeepingUnit[] {
     new('A', 50, new MultiBuyOffer(3,130)),
     new('B', 30, new MultiBuyOffer(2,45)),
@@ -45,16 +51,38 @@ var sampleStockKeepingUnits = new StockKeepingUnit[] {
 
 var checkoutApi = app.MapGroup("/checkout");
 
-checkoutApi.MapGet("/", () => sampleStockKeepingUnits);
-checkoutApi.MapGet("/{id}", (char id) =>
-    sampleStockKeepingUnits.FirstOrDefault(a => a.ID == id) is { } sampleUnit
+checkoutApi.MapGet("/", () =>
+{
+    logger.LogInformation("Fetching all stock keeping units.");
+    return sampleStockKeepingUnits;
+});
+
+checkoutApi.MapGet("/{id}", (string id) =>
+{
+    if (id.Length != 1)
+    {
+        logger.LogWarning("Invalid ID length: {ID}", id);
+        return Results.BadRequest("ID must be a single character.");
+    }
+
+    char charId = id[0];
+    logger.LogInformation("Fetching stock keeping unit with ID: {ID}", charId);
+    return sampleStockKeepingUnits.FirstOrDefault(a => a.ID == charId) is { } sampleUnit
         ? Results.Ok(sampleUnit)
-        : Results.NotFound());
+        : Results.NotFound();
+});
 
 checkoutApi.MapPost("/{basket}", (string basket) =>
 {
+    logger.LogInformation("Calculating total price for basket: {Basket}", basket);
     var result = Checkout.Calculate(basket, sampleStockKeepingUnits);
-    return result.HasErrors ? Results.BadRequest(result.Errors) : Results.Ok(result.TotalPrice);
+    if (result.HasErrors)
+    {
+        logger.LogWarning("Errors occurred while calculating total price: {Errors}", string.Join(", ", result.Errors));
+        return Results.BadRequest(result.Errors);
+    }
+    logger.LogInformation("Total price calculated successfully: {TotalPrice}", result.TotalPrice);
+    return Results.Ok(result.TotalPrice);
 });
 
 app.Run();
