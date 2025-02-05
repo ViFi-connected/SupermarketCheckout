@@ -1,6 +1,6 @@
 # Supermarket Checkout
 
-Supermarket Checkout is a .NET 8 web application that provides an API for managing stock keeping units (SKUs) and calculating the total price of items in a basket, including special offers.
+Supermarket Checkout is a .NET 9 web application that provides an API for managing stock keeping units (SKUs) and calculating the total price of items in a basket, including special offers.
 
 ## Features
 
@@ -10,7 +10,7 @@ Supermarket Checkout is a .NET 8 web application that provides an API for managi
 
 ## Technologies
 
-- .NET 8
+- .NET 9
 - ASP.NET Core
 - Swagger for API documentation
 - Docker for containerization
@@ -19,7 +19,7 @@ Supermarket Checkout is a .NET 8 web application that provides an API for managi
 
 ### Prerequisites
 
-- .NET 8 SDK
+- .NET 9 SDK
 - Docker
 
 ### Building and Running the Application
@@ -68,11 +68,9 @@ Supermarket Checkout is a .NET 8 web application that provides an API for managi
 
 `cd SupermarketCheckout.Tests`
 
-
 2. Run the tests:
 
 `dotnet test`
-
 
 ## License
 
@@ -80,6 +78,6 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## Acknowledgements
 
-- [ASP.NET Core](https://docs.microsoft.com/en-us/aspnet/core/?view=aspnetcore-8.0)
+- [ASP.NET Core](https://dotnet.microsoft.com/en-us/apps/aspnet)
 - [Swagger](https://swagger.io/)
 - [Docker](https://www.docker.com/)
