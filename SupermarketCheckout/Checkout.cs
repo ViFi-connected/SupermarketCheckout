@@ -45,30 +45,4 @@ namespace SupermarketCheckout
             }
         }
     }
-
-    public record StockKeepingUnit(char ID, int Price, Offer? Offer);
-
-    public abstract class Offer
-    {
-        public string Type { get; set; }
-        internal abstract int Apply(int unitCount, int basePrice);
-
-        protected Offer()
-        {
-            Type = GetType().Name;
-        }
-    }
-
-    public class MultiBuyOffer(int _validCount, int _offerPrice) : Offer
-    {
-        internal override int Apply(int unitCount, int basePrice)
-        {
-            var totalValidCount = unitCount / _validCount;
-            var totalOfferPrice = totalValidCount * _offerPrice;
-            var result = totalOfferPrice + (unitCount % _validCount) * basePrice;
-            return result;
-        }
-    }
-
-    // Add other offers here
 }

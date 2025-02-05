@@ -1,4 +1,6 @@
-namespace SupermarketCheckout.UnitTests
+using SupermarketCheckout.Offers;
+
+namespace SupermarketCheckout.Tests
 {
     [TestFixture]
     public class SupermarketCheckout

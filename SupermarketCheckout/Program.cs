@@ -1,4 +1,5 @@
 using SupermarketCheckout;
+using SupermarketCheckout.Offers;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateSlimBuilder(args);
