@@ -1,4 +1,4 @@
-namespace SupermarketCheckout
+namespace SupermarketCheckout.Models
 {
     public class CheckoutResult
     {

@@ -1,4 +1,4 @@
-﻿namespace SupermarketCheckout.Offers
+﻿namespace SupermarketCheckout.Models.Offers
 {
     public class MultiBuyOffer(int _validCount, int _offerPrice) : Offer
     {
@@ -6,7 +6,7 @@
         {
             var totalValidCount = unitCount / _validCount;
             var totalOfferPrice = totalValidCount * _offerPrice;
-            var result = totalOfferPrice + (unitCount % _validCount) * basePrice;
+            var result = totalOfferPrice + unitCount % _validCount * basePrice;
             return result;
         }
     }

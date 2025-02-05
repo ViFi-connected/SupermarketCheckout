@@ -1,4 +1,4 @@
-﻿namespace SupermarketCheckout.Offers
+﻿namespace SupermarketCheckout.Models.Offers
 {
     public abstract class Offer
     {

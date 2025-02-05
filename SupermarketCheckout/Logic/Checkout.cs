@@ -1,8 +1,13 @@
-﻿namespace SupermarketCheckout
+﻿using SupermarketCheckout.Models;
+using SupermarketCheckout.Shared;
+
+namespace SupermarketCheckout.Logic
 {
-    public static class Checkout
+    public class Checkout(IStockKeepingUnitService stockService)
     {
-        public static CheckoutResult Calculate(string basket, StockKeepingUnit[] sampleStockKeepingUnits)
+        private readonly IStockKeepingUnitService _stockService = stockService;
+
+        public CheckoutResult Calculate(string basket)
         {
             var result = new CheckoutResult();
             var unitsInBasket = ParseStockKeepingUnits(basket, result);
@@ -13,6 +18,7 @@
             }
 
             var totalPrice = 0;
+            var sampleStockKeepingUnits = _stockService.GetAll();
 
             foreach (var kvp in unitsInBasket)
             {

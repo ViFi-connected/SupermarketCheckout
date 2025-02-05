@@ -1,12 +1,14 @@
 using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.OpenApi.Models;
-using SupermarketCheckout;
-using SupermarketCheckout.Offers;
+using SupermarketCheckout.Logic;
+using SupermarketCheckout.Models;
+using SupermarketCheckout.Models.Offers;
+using SupermarketCheckout.Services;
+using SupermarketCheckout.Shared;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateSlimBuilder(args);
 
-// Configure logging
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 
@@ -20,20 +22,18 @@ builder.Services.Configure<RouteOptions>(options =>
     options.SetParameterPolicy<RegexInlineRouteConstraint>("regex");
 });
 
-// Add Swagger services
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Supermarket Checkout API", Version = "v1" });
 });
 
+builder.Services.AddSingleton<IStockKeepingUnitService, StockKeepingUnitService>();
+builder.Services.AddTransient<Checkout>();
+
 var app = builder.Build();
 
-// Enable middleware to serve generated Swagger as a JSON endpoint
 app.UseSwagger();
-
-// Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
-// specifying the Swagger JSON endpoint.
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Supermarket Checkout API v1");
@@ -42,22 +42,15 @@ app.UseSwaggerUI(c =>
 
 var logger = app.Logger;
 
-var sampleStockKeepingUnits = new StockKeepingUnit[] {
-    new('A', 50, new MultiBuyOffer(3,130)),
-    new('B', 30, new MultiBuyOffer(2,45)),
-    new('C', 20, null),
-    new('D', 15, null)
-};
-
 var checkoutApi = app.MapGroup("/checkout");
 
-checkoutApi.MapGet("/", () =>
+checkoutApi.MapGet("/", (IStockKeepingUnitService stockService) =>
 {
     logger.LogInformation("Fetching all stock keeping units.");
-    return sampleStockKeepingUnits;
+    return stockService.GetAll();
 });
 
-checkoutApi.MapGet("/{id}", (string id) =>
+checkoutApi.MapGet("/{id}", (string id, IStockKeepingUnitService stockService) =>
 {
     if (id.Length != 1)
     {
@@ -67,15 +60,15 @@ checkoutApi.MapGet("/{id}", (string id) =>
 
     char charId = id[0];
     logger.LogInformation("Fetching stock keeping unit with ID: {ID}", charId);
-    return sampleStockKeepingUnits.FirstOrDefault(a => a.ID == charId) is { } sampleUnit
+    return stockService.GetById(charId) is { } sampleUnit
         ? Results.Ok(sampleUnit)
         : Results.NotFound();
 });
 
-checkoutApi.MapPost("/{basket}", (string basket) =>
+checkoutApi.MapPost("/{basket}", (string basket, Checkout checkout) =>
 {
     logger.LogInformation("Calculating total price for basket: {Basket}", basket);
-    var result = Checkout.Calculate(basket, sampleStockKeepingUnits);
+    var result = checkout.Calculate(basket);
     if (result.HasErrors)
     {
         logger.LogWarning("Errors occurred while calculating total price: {Errors}", string.Join(", ", result.Errors));
