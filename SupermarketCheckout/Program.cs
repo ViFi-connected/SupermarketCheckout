@@ -26,12 +26,17 @@ checkoutApi.MapGet("/{id}", (char id) =>
         ? Results.Ok(checkout)
         : Results.NotFound());
 
-checkoutApi.MapPost("/{basket}", (string basket) => Checkout.Calculate(basket, sampleStockKeepingUnits));
+checkoutApi.MapPost("/{basket}", (string basket) =>
+{
+    var result = Checkout.Calculate(basket, sampleStockKeepingUnits);
+    return result.HasErrors ? Results.BadRequest(result.Errors) : Results.Ok(result.TotalPrice);
+});
 
 app.Run();
 
 [JsonSerializable(typeof(StockKeepingUnit[]))]
 [JsonSerializable(typeof(Offer))]
+[JsonSerializable(typeof(List<string>))]
 internal partial class AppJsonSerializerContext : JsonSerializerContext
 {
 

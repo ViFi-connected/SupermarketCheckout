@@ -23,13 +23,37 @@ namespace SupermarketCheckout.Tests
         {
             Assert.Multiple(() =>
             {
-                Assert.That(Checkout.Calculate("", sampleStockKeepingUnits), Is.EqualTo(0));
-                Assert.That(Checkout.Calculate("A", sampleStockKeepingUnits), Is.EqualTo(50));
-                Assert.That(Checkout.Calculate("AB", sampleStockKeepingUnits), Is.EqualTo(80));
-                Assert.That(Checkout.Calculate("CDBA", sampleStockKeepingUnits), Is.EqualTo(115));
-                Assert.That(Checkout.Calculate("AA", sampleStockKeepingUnits), Is.EqualTo(100));
-                Assert.That(Checkout.Calculate("AAA", sampleStockKeepingUnits), Is.EqualTo(130));
-                Assert.That(Checkout.Calculate("AAABB", sampleStockKeepingUnits), Is.EqualTo(175));
+                var result = Checkout.Calculate("", sampleStockKeepingUnits);
+                Assert.That(result.TotalPrice, Is.EqualTo(0));
+                Assert.That(result.HasErrors, Is.False);
+
+                result = Checkout.Calculate("A", sampleStockKeepingUnits);
+                Assert.That(result.TotalPrice, Is.EqualTo(50));
+                Assert.That(result.HasErrors, Is.False);
+
+                result = Checkout.Calculate("AB", sampleStockKeepingUnits);
+                Assert.That(result.TotalPrice, Is.EqualTo(80));
+                Assert.That(result.HasErrors, Is.False);
+
+                result = Checkout.Calculate("CDBA", sampleStockKeepingUnits);
+                Assert.That(result.TotalPrice, Is.EqualTo(115));
+                Assert.That(result.HasErrors, Is.False);
+
+                result = Checkout.Calculate("AA", sampleStockKeepingUnits);
+                Assert.That(result.TotalPrice, Is.EqualTo(100));
+                Assert.That(result.HasErrors, Is.False);
+
+                result = Checkout.Calculate("AAA", sampleStockKeepingUnits);
+                Assert.That(result.TotalPrice, Is.EqualTo(130));
+                Assert.That(result.HasErrors, Is.False);
+
+                result = Checkout.Calculate("AAABB", sampleStockKeepingUnits);
+                Assert.That(result.TotalPrice, Is.EqualTo(175));
+                Assert.That(result.HasErrors, Is.False);
+
+                result = Checkout.Calculate("X", sampleStockKeepingUnits);
+                Assert.That(result.HasErrors, Is.True);
+                Assert.That(result.Errors, Contains.Item("Invalid item 'X' in basket."));
             });
         }
     }
